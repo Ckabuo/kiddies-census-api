@@ -11,13 +11,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// CORS: allow frontend origin (Netlify URL in production, localhost in dev)
-const frontendOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
-app.use(cors({
-  origin: frontendOrigin,
+// CORS: allow frontend origin(s). Use comma-separated list for multiple (e.g. Netlify + localhost).
+const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
+  .split(',')
+  .map((u) => u.trim())
+  .filter(Boolean);
+const corsOptions = {
+  origin: (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (e.g. Postman, curl)
+    if (!origin) return cb(null, true);
+    if (frontendOrigins.includes(origin)) return cb(null, true);
+    cb(null, false);
+  },
   credentials: true,
   optionsSuccessStatus: 200,
-}));
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
