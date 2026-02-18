@@ -98,7 +98,7 @@ Use the Postman collection in `documentation/` (or repo root) to hit all endpoin
 ## Deployment
 
 - Set `NODE_ENV=production`, `PORT` (e.g. Render provides it), `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL` (your frontend URL for CORS and emails), and `EMAIL_*` if you use invites.
-- Build: `npm run build`
+- **Render:** Use **Build command** `npm run render-build` (or `npm install --include=dev && npm run build`) so devDependencies (TypeScript, `@types/*`) are installed and the project compiles. Start: `node dist/server.js`.
 - Start: `npm start`
 
 See the repo root **DEPLOYMENT.md** for hosting the backend on Render (free tier) with the frontend on Netlify.
