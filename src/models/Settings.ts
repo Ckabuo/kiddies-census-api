@@ -37,7 +37,4 @@ const SettingsSchema = new Schema<ISettings>(
   }
 );
 
-// Index for key lookup
-SettingsSchema.index({ key: 1 });
-
 export default mongoose.model<ISettings>('Settings', SettingsSchema);
