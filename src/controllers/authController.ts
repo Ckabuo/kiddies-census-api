@@ -138,6 +138,13 @@ export const sendInvite = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      res.status(503).json({
+        message: 'Email is not configured. Set EMAIL_USER and EMAIL_PASS on the server.',
+      });
+      return;
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
@@ -167,8 +174,15 @@ export const sendInvite = async (req: AuthRequest, res: Response): Promise<void>
     await sendInviteEmail(invite.email, invite.token);
 
     res.json({ message: 'Invitation sent successfully', inviteId: invite._id });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Send invite error:', error);
+    const isEmailError = error?.code === 'EAUTH' || error?.responseCode || error?.command;
+    if (isEmailError || error?.message?.toLowerCase?.().includes('mail')) {
+      res.status(503).json({
+        message: 'Failed to send invitation email. Check server email configuration (EMAIL_USER, EMAIL_PASS).',
+      });
+      return;
+    }
     res.status(500).json({ message: 'Server error' });
   }
 };
